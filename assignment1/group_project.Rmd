@@ -1,0 +1,234 @@
+---
+title: "CSCI 456 Group 2 - Project #1"
+author: "Jacob Collins, Naina K."
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) # select
+library(dplyr) # Mutate
+library(ggplot2) # Plot
+default_theme <- theme(
+    # Title
+    plot.title = element_text( # Title
+      color = "white", size = 14,  
+      face = "bold", hjust = 0.5),
+    plot.subtitle = element_text( # Subtitle
+      color = "lightgray", size=10, 
+      face = "italic", hjust = 0.5),
+    # Axis Text
+    axis.title.x = element_text( # X-Axis Title
+      color = "lightgray",
+      size = 12, angle = 0,),
+    axis.title.y = element_text( # Y-Axis Title
+      color = "lightgray",  
+      size = 12, angle = 90,),
+    axis.text.x = element_text( # X-Axis Labels
+      face = "italic", color = "lightgray",  
+      size = 8, angle = 0),
+    axis.text.y = element_text( # Y-Axis Labels
+      face = "italic", color = "lightgray",  
+      size = 8, angle=90),
+#    axis.text.x = element_text( # X-Axis Labels
+#      face = "italic", color = "lightgray",  
+#      size = 8, angle = -15),
+#    axis.text.y = element_text( # Y-Axis Labels
+#      face = "italic", color = "lightgray",  
+#      size = 8, angle=45),
+    # Background Colors
+    panel.background = element_rect( # Background of the Plot Box Itself
+      fill = "#060606", colour = "#5f5d63",
+      linewidth = 2, linetype = "solid"),
+    panel.grid.major = element_line( # Grid Colors
+      linewidth = 0.5, linetype = 'solid', 
+      colour = "#7a797a"), 
+#    panel.grid.minor = element_line( # Minor Grid Colors
+#      linewidth = 0.25, linetype = 'solid', 
+#      colour = "#585759"),
+    plot.background = element_rect(fill = "#0e0e0f"), # Furthest Background
+    # Legend
+    legend.title = element_text(color = "lightgray", size = 10),
+    legend.text = element_text(color = "gray"),
+    legend.key = element_rect(fill = "#383838", color = NA),
+    #legend.key.size = unit(1.5, "cm"),
+    #legend.key.width = unit(0.5,"cm"), 
+    legend.background = element_rect(fill = "#5f5d63"),
+  )
+```
+
+# Data Exploration and Cleaning
+
+## Select a Data Source:
+
+[Department of Agriculture- National USFS Fire Occurrence Point](https://catalog.data.gov/dataset/national-usfs-fire-occurrence-point-feature-layer-d3233)
+
+## Formulate Research Questions:
+
+Develop 3-5 research questions that you aim to answer through your analysis. Ensure that these questions are specific, measurable, and relevant to the dataset you have chosen.
+
+- How has the size and frequency of fires changed over time?
+- What regions are more susceptible to forest fires, in terms of longitude and latitude?
+- What is the relationship between wildfire occurrence and proximity to human settlements? 
+
+
+## Data Variable Description:
+
+Explain the variables in your dataset you intend to analyze.
+
+- `STATCAUSE` - Cause: indicates cause of fire , categorical-qualitative data
+- `TOTALACRES` - Total acres: represents area burned by the wildfire, quantitative- continuous data
+- `LATDD83` - Latitude: north-south location, quantitative- continuous data
+- `LONGDD83` - Longitude: east-west location, quantitative- continuous data
+- `REVDATE` - Fire year: year wildfire occurred, quantitative- discrete data
+
+
+## Preparation:
+
+Describe how you did data preparation. This may include: - Checking and handling missing values - Encoding categorical variables
+
+### Initial csv read
+
+```{r cars}
+fires <- read.csv("../data/fires.csv", fill=TRUE)
+fires <- fires %>% select(TOTALACRES, LATDD83, LONGDD83, STATCAUSE, REVDATE)
+nrow(fires)
+summary(fires)
+```
+
+There are 582,034 observations.
+
+### Cleaning `REVDATE`
+
+```{r}
+fires$REVDATE <- as.Date(fires$REVDATE)
+summary(fires$REVDATE)
+```
+
+It seems there are many years incorrectly labeled.
+
+```{r}
+# No real data in the future
+fires$REVDATE[as.numeric(format(fires$REVDATE, "%Y")) > 2025] <- NA
+# No real data before 1500 is a safe assumption
+fires$REVDATE[as.numeric(format(fires$REVDATE, "%Y")) < 1500] <- NA
+
+fires$REV.YEAR <- format(fires$REVDATE, "%Y")
+fires$REV.YEAR <- as.numeric(fires$REV.YEAR)
+fires %>% ggplot(aes(x = REV.YEAR)) +
+  geom_histogram(binwidth=1, fill = "steelblue", color="white", na.rm=TRUE) +
+  default_theme +
+  labs(
+    x = "Year",
+    y = "Count",
+    title = "Count of Fires by Year",
+  ) + theme(
+    axis.text.x = element_text( # X-Axis Labels
+      face = "italic", color = "lightgray",  
+      size = 8, angle = 90)
+  )
+```
+
+Viewing this plot shows us where the bulk of the data is, and we can prune around it.
+
+```{r}
+# This deleted REVDATE and filled around Y, M, & D with the current md, yd, ym, respectively.
+#fires <- fires %>% separate(REVDATE, into = c("REV.Y", "REV.M", "REV.D"), sep = "-")
+#fires$REV.Y <- as.Date(fires$REV.Y, format = "%Y")
+#fires$REV.M <- as.Date(fires$REV.M, format = "%m")
+#fires$REV.D <- as.Date(fires$REV.D, format = "%d")
+#summary(fires %>% select(REV.Y, REV.M, REV.D))
+
+# No real data before 1985
+fires$REVDATE[as.numeric(format(fires$REVDATE, "%Y")) < 1985] <- NA
+summary(fires$REVDATE)
+```
+
+```{r}
+fires$REV.YEAR <- format(fires$REVDATE, "%Y")
+fires$REV.YEAR <- as.numeric(fires$REV.YEAR)
+fires %>% ggplot(aes(x = REV.YEAR)) +
+  geom_histogram(binwidth=1, fill = "steelblue", color="white", na.rm=TRUE) +
+  default_theme +
+  labs(
+    x = "Year",
+    y = "Count",
+    title = "Count of Fires by Year",
+  ) + theme(
+    axis.text.x = element_text( # X-Axis Labels
+      face = "italic", color = "lightgray",  
+      size = 8, angle = 90)
+  )
+```
+
+### Cleaning Acres
+
+```{r}
+summary(fires$TOTALACRES)
+```
+
+```{r}
+fires %>% ggplot(mapping=aes(x=REVDATE, y=TOTALACRES)) +
+  geom_point(color="white", alpha=0.3, na.rm=TRUE) +
+  default_theme +
+  labs(
+    x = "Date",
+    y = "Total Acres",
+    title = "Size of Fires by Date"
+  )
+```
+
+Acres looks alright.
+
+### Cleaning Longitude and Latitude
+
+```{r}
+summary(fires %>% select(LATDD83, LONGDD83))
+```
+
+The valid range for latitude is -90 to 90. The valid range for longitude is -180 to 180.
+
+```{r}
+fires$LATDD83[fires$LATDD83 > 90] <- NA
+fires$LATDD83[fires$LATDD83 < -90] <- NA
+fires$LONGDD83[fires$LONGDD83 > 180] <- NA
+fires$LONGDD83[fires$LONGDD83 < -180] <- NA
+summary(fires %>% select(LATDD83, LONGDD83))
+```
+
+
+### Cleaning `STATCAUSE`
+
+```{r}
+unique(fires$STATCAUSE)
+```
+
+These can be joined by matching number or obvious typos like two spaces instead of one. 
+
+Blank results, miscellaneous, undet., etc. shall be marked NA.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
