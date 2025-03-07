@@ -3,8 +3,8 @@ title: "CSCI 456 Group 2 - Assignment #2"
 author: "Jacob Collins, Naina K."
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 urlcolor: blue
 ---
 
@@ -42,14 +42,14 @@ default_theme <- theme(
 #      size = 8, angle=45),
     # Background Colors
     panel.background = element_rect( # Background of the Plot Box Itself
-      fill = "#060606", colour = "#5f5d63",
+      fill = "#060606", color = "#5f5d63",
       linewidth = 2, linetype = "solid"),
     panel.grid.major = element_line( # Grid Colors
       linewidth = 0.5, linetype = 'solid', 
-      colour = "#7a797a"), 
+      color = "#7a797a"), 
 #    panel.grid.minor = element_line( # Minor Grid Colors
 #      linewidth = 0.25, linetype = 'solid', 
-#      colour = "#585759"),
+#      color = "#585759"),
     plot.background = element_rect(fill = "#0e0e0f"), # Furthest Background
     # Legend
     legend.title = element_text(color = "lightgray", size = 10),
@@ -61,7 +61,7 @@ default_theme <- theme(
   )
 ```
 
-# Data Exploration and Cleaning
+# Analysis of U.S. Fires
 
 ## Select a Data Source:
 
@@ -72,9 +72,8 @@ default_theme <- theme(
 Develop 3-5 research questions that you aim to answer through your analysis. Ensure that these questions are specific, measurable, and relevant to the dataset you have chosen.
 
 - How has the size and frequency of fires changed over time?
-- What regions are more susceptible to forest fires, in terms of longitude and latitude?
-- What is the relationship between wildfire occurrence and proximity to human settlements? 
-
+- What regions experience the most fires, in terms of longitude and latitude?
+- What are the primary causes of fires? Compare small, medium, and large fires.
 
 ## Data Variable Description:
 
@@ -136,8 +135,10 @@ fires %>% ggplot(aes(x = REV.YEAR)) +
 Viewing this plot shows us where the bulk of the data is, and we can prune around it.
 
 ```{r}
-# This deleted REVDATE and filled around Y, M, & D with the current md, yd, ym, respectively.
-#fires <- fires %>% separate(REVDATE, into = c("REV.Y", "REV.M", "REV.D"), sep = "-")
+# This deleted REVDATE and filled around Y, M, & D 
+# with the current md, yd, ym, respectively.
+#fires <- fires %>% separate(REVDATE, 
+#                            into = c("REV.Y", "REV.M", "REV.D"), sep = "-")
 #fires$REV.Y <- as.Date(fires$REV.Y, format = "%Y")
 #fires$REV.M <- as.Date(fires$REV.M, format = "%m")
 #fires$REV.D <- as.Date(fires$REV.D, format = "%d")
@@ -200,6 +201,57 @@ fires$LONGDD83[fires$LONGDD83 < -180] <- NA
 summary(fires %>% select(LATDD83, LONGDD83))
 ```
 
+```{r}
+fires %>% ggplot(mapping=aes(x=LONGDD83, y=LATDD83)) +
+  geom_point(alpha = 0.3, color="white", na.rm = TRUE) +
+  labs(
+    title = "US Fires by Latitude and Longitude",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  default_theme
+```
+
+The scale looks awkward because this dataset includes occupied territories as well.
+
+Adding features for specifically within the contiguous U.S.:
+
+```{r}
+# Copy over coordinates
+fires$LAT.US <- fires$LATDD83
+fires$LONG.US <- fires$LONGDD83
+
+# Filter to within contiguous US
+fires$LONG.US[fires$LONG.US < -124.67] <- NA
+fires$LONG.US[fires$LONG.US > -66.95] <- NA
+
+fires$LAT.US[fires$LAT.US > 49.38] <- NA
+fires$LAT.US[fires$LAT.US < 25.84] <- NA
+```
+
+Summarize the data:
+
+```{r}
+summary(fires %>% select(LONG.US, LAT.US))
+```
+
+Updated figure:
+
+```{r}
+fires %>% ggplot(mapping=aes(x=LONG.US, y=LAT.US)) +
+  geom_point(alpha = 0.2, na.rm=TRUE, mapping = aes(color = TOTALACRES)) +
+  scale_color_gradient2(midpoint = 1000, 
+                        low = "darkgrey", 
+                        mid = "orange", 
+                        high = "red") +
+  labs(
+    title = "Contiguous US Fires by Latitude and Longitude",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  default_theme
+```
+
 
 ### Cleaning `STATCAUSE`
 
@@ -212,9 +264,44 @@ These can be joined by matching number or obvious typos like two spaces instead 
 Blank results, miscellaneous, undet., etc. shall be marked NA.
 
 
+### Data Overview
 
+```{r}
+summary(fires)
+```
+NA counts by feature name:
 
+- TOTALACRES: 3640
+- LATDD83: 925
+- LONGDD83: 723
+- LAT.US: 5563
+- LONG.US: 9962
+- REVDATE: 24186
+- REV.YEAR: 24186
 
+## Contributions
+
+Jacob Collins: 
+
+- Data loading
+- Figure: REVDATE NA visualization 
+- Cleaned REVDATE
+- Added REV.YEAR 
+- Figure: Fires by Year
+- Figure: Size of Fires by Date
+- Cleaned latitude and longitude.
+- Figure: US Fires by Latitude and Longitude
+- Added LONG.US
+- Added LAT.US
+- Figure: Contiguous US Fires by Latitude and Longitude
+- NA Counts
+- GitHub Pages
+
+Naina Kaur:
+
+- Research questions
+- Variable descriptions
+- Cleaned STATCAUSE(?)
 
 
 
