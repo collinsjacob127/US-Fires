@@ -62,6 +62,9 @@ default_theme <- theme(
 ```
 
 # Analysis of U.S. Fires
+Title:
+Forest Fire Trends
+
 
 ## Select a Data Source:
 
@@ -257,11 +260,50 @@ fires %>% ggplot(mapping=aes(x=LONG.US, y=LAT.US)) +
 
 ```{r}
 unique(fires$STATCAUSE)
+fires$STATCAUSE[fires$STATCAUSE == "Undetermined"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == ""] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "Miscellaneous"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "9 -  Miscellaneous"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "Camping "] <- "Camping"
+fires$STATCAUSE[fires$STATCAUSE == " Undetermined"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "Investigated But Und"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "Cause not Identified"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "3"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "1"] <- "Lightning"
+fires$STATCAUSE[fires$STATCAUSE == "2"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "0"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "5 -  Debris Burning"] <- "Debris/Open Burning"
+fires$STATCAUSE[fires$STATCAUSE == "1 - Lightning"] <- "Lightning"
+fires$STATCAUSE[fires$STATCAUSE == "7-Arson"] <- "Arson"
+fires$STATCAUSE[fires$STATCAUSE == "5"] <- "Debris/Open Burning"
+fires$STATCAUSE[fires$STATCAUSE == "9"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "7"] <- "Arson"
+fires$STATCAUSE[fires$STATCAUSE == "Firearms/Weapons "] <- "Firearms/Weapons"
+fires$STATCAUSE[fires$STATCAUSE == "9 - Miscellaneous"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "5 - Debris burning"] <- "Debris/Open Burning"
+fires$STATCAUSE[fires$STATCAUSE == "Campfire"] <- "Camping"
+fires$STATCAUSE[fires$STATCAUSE == "5-Debris burning"] <- "Debris/Open Burning"
+fires$STATCAUSE[fires$STATCAUSE == "4 - Campfire"] <- "Camping"
+fires$STATCAUSE[fires$STATCAUSE == "Debris Burning"] <- "Debris/Open Burning"
+fires$STATCAUSE[fires$STATCAUSE == "Other Human Cause"] <- "Other causes"
+fires$STATCAUSE[fires$STATCAUSE == "Other Natural Cause"] <- "Other causes"
+fires$STATCAUSE[fires$STATCAUSE == "4"] <- "Camping"
+fires$STATCAUSE[fires$STATCAUSE == "6"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "8"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "Equipment Use"] <- "Equip/vehicle use"
+fires$STATCAUSE[fires$STATCAUSE == "Undertermined"] <- NA
+fires$STATCAUSE[fires$STATCAUSE == "Equipment"] <- "Equip/vehicle use"
+```
+```{r}
+#factor categorical variables from the fires$STATCAUSE data
+STATCAUSE_levels <- c("Camping", "Lightning", "Smoking",    "Debris/Open Burning", "Other causes", "Incendiary","Equip/vehicle use","Railroad", "Utilities", "Arson", "Firearms/Weapons", "Natural", "Human", "Children", "Powgen/trans/distrib")
+
+# factor using the specified levels
+fires$STATCAUSE <- factor(fires$STATCAUSE, levels = STATCAUSE_levels)
+
+str(fires)
 ```
 
-These can be joined by matching number or obvious typos like two spaces instead of one. 
-
-Blank results, miscellaneous, undet., etc. shall be marked NA.
 
 
 ### Data Overview
@@ -299,9 +341,10 @@ Jacob Collins:
 
 Naina Kaur:
 
-- Research questions
-- Variable descriptions
-- Cleaned STATCAUSE(?)
+- Research Questions
+- Variable Descriptions
+- Cleaned 'STATCAUSE'
+- Factored Categorical Variables
 
 
 
