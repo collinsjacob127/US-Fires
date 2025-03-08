@@ -351,13 +351,14 @@ display: none;
 
 <h1 class="title toc-ignore">CSCI 456 Group 2 - Assignment #2</h1>
 <h4 class="author">Jacob Collins, Naina K.</h4>
-<h4 class="date">06 March, 2025</h4>
+<h4 class="date">08 March, 2025</h4>
 
 </div>
 
 
 <div id="analysis-of-u.s.-fires" class="section level1">
 <h1>Analysis of U.S. Fires</h1>
+<p>Title: Forest Fire Trends</p>
 <div id="select-a-data-source" class="section level2">
 <h2>Select a Data Source:</h2>
 <p><a href="https://catalog.data.gov/dataset/national-usfs-fire-occurrence-point-feature-layer-d3233">Department
@@ -592,29 +593,81 @@ fires$LAT.US[fires$LAT.US &lt; 25.84] &lt;- NA</code></pre>
 ## [40] &quot;Campfire&quot;             &quot;7-Arson&quot;              &quot;5-Debris burning&quot;    
 ## [43] &quot; Undetermined&quot;        &quot;Powgen/trans/distrib&quot; &quot;Equip/vehicle use&quot;   
 ## [46] &quot;Other causes&quot;         &quot;Investigated But Und&quot; &quot;Cause not Identified&quot;</code></pre>
-<p>These can be joined by matching number or obvious typos like two
-spaces instead of one.</p>
-<p>Blank results, miscellaneous, undet., etc. shall be marked NA.</p>
+<pre class="r"><code>fires$STATCAUSE[fires$STATCAUSE == &quot;Undetermined&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;Miscellaneous&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;9 -  Miscellaneous&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;Camping &quot;] &lt;- &quot;Camping&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot; Undetermined&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;Investigated But Und&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;Cause not Identified&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;3&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;1&quot;] &lt;- &quot;Lightning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;2&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;0&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;5 -  Debris Burning&quot;] &lt;- &quot;Debris/Open Burning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;1 - Lightning&quot;] &lt;- &quot;Lightning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;7-Arson&quot;] &lt;- &quot;Arson&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;5&quot;] &lt;- &quot;Debris/Open Burning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;9&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;7&quot;] &lt;- &quot;Arson&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;Firearms/Weapons &quot;] &lt;- &quot;Firearms/Weapons&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;9 - Miscellaneous&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;5 - Debris burning&quot;] &lt;- &quot;Debris/Open Burning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;Campfire&quot;] &lt;- &quot;Camping&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;5-Debris burning&quot;] &lt;- &quot;Debris/Open Burning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;4 - Campfire&quot;] &lt;- &quot;Camping&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;Debris Burning&quot;] &lt;- &quot;Debris/Open Burning&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;Other Human Cause&quot;] &lt;- &quot;Other causes&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;Other Natural Cause&quot;] &lt;- &quot;Other causes&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;4&quot;] &lt;- &quot;Camping&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;6&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;8&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;Equipment Use&quot;] &lt;- &quot;Equip/vehicle use&quot;
+fires$STATCAUSE[fires$STATCAUSE == &quot;Undertermined&quot;] &lt;- NA
+fires$STATCAUSE[fires$STATCAUSE == &quot;Equipment&quot;] &lt;- &quot;Equip/vehicle use&quot;</code></pre>
+<pre class="r"><code>#factor categorical variables from the fires$STATCAUSE data
+STATCAUSE_levels &lt;- c(&quot;Camping&quot;, &quot;Lightning&quot;, &quot;Smoking&quot;,    &quot;Debris/Open Burning&quot;, &quot;Other causes&quot;, &quot;Incendiary&quot;,&quot;Equip/vehicle use&quot;,&quot;Railroad&quot;, &quot;Utilities&quot;, &quot;Arson&quot;, &quot;Firearms/Weapons&quot;, &quot;Natural&quot;, &quot;Human&quot;, &quot;Children&quot;, &quot;Powgen/trans/distrib&quot;)
+
+# factor using the specified levels
+fires$STATCAUSE &lt;- factor(fires$STATCAUSE, levels = STATCAUSE_levels)
+
+unique(fires$STATCAUSE)</code></pre>
+<pre><code>##  [1] Camping              Lightning            &lt;NA&gt;                
+##  [4] Smoking              Debris/Open Burning  Other causes        
+##  [7] Incendiary           Equip/vehicle use    Railroad            
+## [10] Utilities            Arson                Firearms/Weapons    
+## [13] Natural              Human                Children            
+## [16] Powgen/trans/distrib
+## 15 Levels: Camping Lightning Smoking Debris/Open Burning ... Powgen/trans/distrib</code></pre>
 </div>
 <div id="data-overview" class="section level3">
 <h3>Data Overview</h3>
 <pre class="r"><code>summary(fires)</code></pre>
-<pre><code>##    TOTALACRES          LATDD83          LONGDD83       STATCAUSE        
-##  Min.   :     0.0   Min.   :-89.77   Min.   :-150.4   Length:582034     
-##  1st Qu.:     0.1   1st Qu.: 35.05   1st Qu.:-120.6   Class :character  
-##  Median :     0.1   Median : 38.56   Median :-116.2   Mode  :character  
-##  Mean   :   118.8   Mean   : 39.06   Mean   :-111.3                     
-##  3rd Qu.:     1.0   3rd Qu.: 43.67   3rd Qu.:-109.8                     
-##  Max.   :963309.0   Max.   : 84.92   Max.   : 110.0                     
-##  NA&#39;s   :3640       NA&#39;s   :925      NA&#39;s   :723                        
-##     REVDATE              REV.YEAR         LAT.US         LONG.US       
-##  Min.   :1985-04-19   Min.   :1985    Min.   :28.50   Min.   :-124.41  
-##  1st Qu.:2017-01-24   1st Qu.:2017    1st Qu.:35.09   1st Qu.:-120.62  
-##  Median :2019-01-02   Median :2019    Median :38.58   Median :-116.32  
-##  Mean   :2015-08-22   Mean   :2015    Mean   :39.28   Mean   :-113.13  
-##  3rd Qu.:2019-01-02   3rd Qu.:2019    3rd Qu.:43.66   3rd Qu.:-110.57  
-##  Max.   :2024-07-30   Max.   :2024    Max.   :49.02   Max.   : -70.79  
-##  NA&#39;s   :24186        NA&#39;s   :24186   NA&#39;s   :5563    NA&#39;s   :9962</code></pre>
+<pre><code>##    TOTALACRES          LATDD83          LONGDD83     
+##  Min.   :     0.0   Min.   :-89.77   Min.   :-150.4  
+##  1st Qu.:     0.1   1st Qu.: 35.05   1st Qu.:-120.6  
+##  Median :     0.1   Median : 38.56   Median :-116.2  
+##  Mean   :   118.8   Mean   : 39.06   Mean   :-111.3  
+##  3rd Qu.:     1.0   3rd Qu.: 43.67   3rd Qu.:-109.8  
+##  Max.   :963309.0   Max.   : 84.92   Max.   : 110.0  
+##  NA&#39;s   :3640       NA&#39;s   :925      NA&#39;s   :723     
+##                STATCAUSE         REVDATE              REV.YEAR    
+##  Lightning          :236426   Min.   :1985-04-19   Min.   :1985   
+##  Camping            : 58316   1st Qu.:2017-01-24   1st Qu.:2017   
+##  Equip/vehicle use  : 48623   Median :2019-01-02   Median :2019   
+##  Incendiary         : 41086   Mean   :2015-08-22   Mean   :2015   
+##  Debris/Open Burning: 30023   3rd Qu.:2019-01-02   3rd Qu.:2019   
+##  (Other)            : 57941   Max.   :2024-07-30   Max.   :2024   
+##  NA&#39;s               :109619   NA&#39;s   :24186        NA&#39;s   :24186  
+##      LAT.US         LONG.US       
+##  Min.   :28.50   Min.   :-124.41  
+##  1st Qu.:35.09   1st Qu.:-120.62  
+##  Median :38.58   Median :-116.32  
+##  Mean   :39.28   Mean   :-113.13  
+##  3rd Qu.:43.66   3rd Qu.:-110.57  
+##  Max.   :49.02   Max.   : -70.79  
+##  NA&#39;s   :5563    NA&#39;s   :9962</code></pre>
 <p>NA counts by feature name:</p>
 <ul>
 <li>TOTALACRES: 3640</li>
@@ -647,8 +700,10 @@ spaces instead of one.</p>
 </ul>
 <p>Naina Kaur:</p>
 <ul>
-<li>Research questions</li>
-<li>Variable descriptions</li>
+<li>Research Questions</li>
+<li>Variable Descriptions</li>
+<li>Cleaned ‘STATCAUSE’</li>
+<li>Factored Categorical Variables</li>
 </ul>
 </div>
 </div>

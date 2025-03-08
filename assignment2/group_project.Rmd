@@ -248,7 +248,7 @@ fires %>% ggplot(mapping=aes(x=LONG.US, y=LAT.US)) +
                         mid = "orange", 
                         high = "red") +
   labs(
-    title = "Contiguous US Fires by Latitude and Longitude",
+    title = "US Fires by Latitude and Longitude",
     x = "Longitude",
     y = "Latitude"
   ) +
@@ -260,6 +260,9 @@ fires %>% ggplot(mapping=aes(x=LONG.US, y=LAT.US)) +
 
 ```{r}
 unique(fires$STATCAUSE)
+```
+
+```{r}
 fires$STATCAUSE[fires$STATCAUSE == "Undetermined"] <- NA
 fires$STATCAUSE[fires$STATCAUSE == ""] <- NA
 fires$STATCAUSE[fires$STATCAUSE == "Miscellaneous"] <- NA
@@ -294,6 +297,7 @@ fires$STATCAUSE[fires$STATCAUSE == "Equipment Use"] <- "Equip/vehicle use"
 fires$STATCAUSE[fires$STATCAUSE == "Undertermined"] <- NA
 fires$STATCAUSE[fires$STATCAUSE == "Equipment"] <- "Equip/vehicle use"
 ```
+
 ```{r}
 #factor categorical variables from the fires$STATCAUSE data
 STATCAUSE_levels <- c("Camping", "Lightning", "Smoking",    "Debris/Open Burning", "Other causes", "Incendiary","Equip/vehicle use","Railroad", "Utilities", "Arson", "Firearms/Weapons", "Natural", "Human", "Children", "Powgen/trans/distrib")
@@ -301,7 +305,7 @@ STATCAUSE_levels <- c("Camping", "Lightning", "Smoking",    "Debris/Open Burning
 # factor using the specified levels
 fires$STATCAUSE <- factor(fires$STATCAUSE, levels = STATCAUSE_levels)
 
-str(fires)
+unique(fires$STATCAUSE)
 ```
 
 
