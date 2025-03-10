@@ -298,6 +298,8 @@ fires$STATCAUSE[fires$STATCAUSE == "Undertermined"] <- NA
 fires$STATCAUSE[fires$STATCAUSE == "Equipment"] <- "Equip/vehicle use"
 ```
 
+test changes
+
 ```{r}
 #factor categorical variables from the fires$STATCAUSE data
 STATCAUSE_levels <- c("Camping", "Lightning", "Smoking",    "Debris/Open Burning", "Other causes", "Incendiary","Equip/vehicle use","Railroad", "Utilities", "Arson", "Firearms/Weapons", "Natural", "Human", "Children", "Powgen/trans/distrib")
